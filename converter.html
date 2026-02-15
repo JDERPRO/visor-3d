@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bitform | Conversor IFC → FRAG</title>
+    <meta name="description"
+        content="Convierte archivos IFC a formato .frag optimizado para el Visor BIM 3D de Bitform. Compatible con @thatopen/fragments.">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="icon" type="image/svg+xml" href="/visor-3d/vite.svg" />
+  <script type="module" crossorigin src="/visor-3d/assets/converter-1R27qrQ7.js"></script>
+  <link rel="modulepreload" crossorigin href="/visor-3d/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/visor-3d/assets/three-B4arhRS6.js">
+  <link rel="modulepreload" crossorigin href="/visor-3d/assets/thatopen-CwLPH9ho.js">
+  <link rel="stylesheet" crossorigin href="/visor-3d/assets/converter-CBTiOeQ2.css">
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader-content">
+            <div class="loader-logo">
+                <div class="logo-cube">
+                    <div class="cube-face front"></div>
+                    <div class="cube-face back"></div>
+                    <div class="cube-face left"></div>
+                    <div class="cube-face right"></div>
+                    <div class="cube-face top"></div>
+                    <div class="cube-face bottom"></div>
+                </div>
+            </div>
+            <h2 class="loader-title">IFC → FRAG CONVERTER</h2>
+            <p class="loader-subtitle" id="loading-status">Inicializando motor de conversión...</p>
+            <div class="loader-progress">
+                <div class="loader-progress-bar" id="loading-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="converter-app">
+        <!-- Top Toolbar -->
+        <header id="toolbar">
+            <div class="toolbar-left">
+                <a href="/" class="toolbar-brand" title="Volver al Visor">
+                    <div class="brand-icon">B</div>
+                    <span class="brand-text">BITFORM <span class="brand-accent">CONVERTER</span></span>
+                </a>
+                <div class="toolbar-divider"></div>
+                <span class="converter-badge">
+                    <i class="fas fa-exchange-alt"></i>
+                    IFC → FRAG
+                </span>
+            </div>
+
+            <div class="toolbar-right">
+                <a href="/" class="tool-btn" title="Volver al Visor 3D">
+                    <i class="fas fa-cube"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="converter-main">
+            <!-- Left Panel: Upload & Controls -->
+            <section id="converter-panel">
+                <!-- Upload Area -->
+                <div id="upload-section">
+                    <div id="upload-area" class="upload-dropzone">
+                        <div class="upload-icon-wrapper">
+                            <div class="upload-icon-bg"></div>
+                            <i class="fas fa-file-import upload-icon"></i>
+                        </div>
+                        <h3>Arrastra tu archivo IFC aquí</h3>
+                        <p>o haz click para seleccionar</p>
+                        <div class="upload-formats">
+                            <span class="format-badge">.IFC</span>
+                            <i class="fas fa-arrow-right format-arrow"></i>
+                            <span class="format-badge format-badge-accent">.FRAG</span>
+                        </div>
+                        <input type="file" id="ifc-file-input" accept=".ifc" class="hidden">
+                    </div>
+                </div>
+
+                <!-- File Info (shown after file is selected) -->
+                <div id="file-info-section" class="hidden">
+                    <div class="section-header">
+                        <h4><i class="fas fa-file-alt"></i> Archivo Seleccionado</h4>
+                    </div>
+                    <div class="file-info-card">
+                        <div class="file-info-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="file-info-details">
+                            <span class="file-info-name" id="file-name">—</span>
+                            <span class="file-info-size" id="file-size">—</span>
+                        </div>
+                        <button class="file-info-remove" id="btn-remove-file" title="Quitar archivo">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Conversion Progress (shown during conversion) -->
+                <div id="progress-section" class="hidden">
+                    <div class="section-header">
+                        <h4><i class="fas fa-cogs"></i> Conversión en Progreso</h4>
+                    </div>
+                    <div class="progress-card">
+                        <div class="progress-steps">
+                            <div class="progress-step" id="step-read" data-step="1">
+                                <div class="step-indicator">
+                                    <i class="fas fa-file-import"></i>
+                                </div>
+                                <div class="step-info">
+                                    <span class="step-title">Leyendo archivo IFC</span>
+                                    <span class="step-status" id="step-read-status">Pendiente</span>
+                                </div>
+                            </div>
+                            <div class="progress-step" id="step-parse" data-step="2">
+                                <div class="step-indicator">
+                                    <i class="fas fa-sitemap"></i>
+                                </div>
+                                <div class="step-info">
+                                    <span class="step-title">Parsing geometría</span>
+                                    <span class="step-status" id="step-parse-status">Pendiente</span>
+                                </div>
+                            </div>
+                            <div class="progress-step" id="step-convert" data-step="3">
+                                <div class="step-indicator">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </div>
+                                <div class="step-info">
+                                    <span class="step-title">Convirtiendo a Fragments</span>
+                                    <span class="step-status" id="step-convert-status">Pendiente</span>
+                                </div>
+                            </div>
+                            <div class="progress-step" id="step-export" data-step="4">
+                                <div class="step-indicator">
+                                    <i class="fas fa-download"></i>
+                                </div>
+                                <div class="step-info">
+                                    <span class="step-title">Exportando .frag</span>
+                                    <span class="step-status" id="step-export-status">Pendiente</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="conversion-progress"></div>
+                        </div>
+                        <p class="progress-message" id="progress-message">Iniciando...</p>
+                    </div>
+                </div>
+
+                <!-- Result (shown after conversion) -->
+                <div id="result-section" class="hidden">
+                    <div class="section-header">
+                        <h4><i class="fas fa-check-circle"></i> Conversión Completada</h4>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-stats">
+                            <div class="result-stat">
+                                <span class="stat-label">Archivo Original</span>
+                                <span class="stat-value" id="result-original-size">—</span>
+                            </div>
+                            <div class="result-stat">
+                                <span class="stat-label">Archivo FRAG</span>
+                                <span class="stat-value stat-accent" id="result-frag-size">—</span>
+                            </div>
+                            <div class="result-stat">
+                                <span class="stat-label">Reducción</span>
+                                <span class="stat-value stat-success" id="result-reduction">—</span>
+                            </div>
+                            <div class="result-stat">
+                                <span class="stat-label">Elementos</span>
+                                <span class="stat-value" id="result-elements">—</span>
+                            </div>
+                            <div class="result-stat">
+                                <span class="stat-label">Tiempo</span>
+                                <span class="stat-value" id="result-time">—</span>
+                            </div>
+                        </div>
+                        <div class="result-actions">
+                            <button class="btn-primary btn-lg" id="btn-download">
+                                <i class="fas fa-download"></i> Descargar .frag
+                            </button>
+                            <button class="btn-secondary" id="btn-preview">
+                                <i class="fas fa-eye"></i> Ver en Visor
+                            </button>
+                            <button class="btn-secondary" id="btn-convert-another">
+                                <i class="fas fa-redo"></i> Convertir Otro
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div id="error-section" class="hidden">
+                    <div class="section-header">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Error de Conversión</h4>
+                    </div>
+                    <div class="error-card">
+                        <p class="error-message" id="error-message">—</p>
+                        <button class="btn-secondary" id="btn-retry">
+                            <i class="fas fa-redo"></i> Reintentar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Convert Button -->
+                <div id="action-section" class="hidden">
+                    <button class="btn-primary btn-lg btn-convert" id="btn-convert">
+                        <i class="fas fa-magic"></i> Convertir a .frag
+                    </button>
+                </div>
+            </section>
+
+            <!-- Right Panel: 3D Preview -->
+            <section id="preview-section">
+                <div id="preview-container">
+                    <!-- 3D Preview will render here -->
+                </div>
+                <div id="preview-empty">
+                    <div class="preview-empty-content">
+                        <i class="fas fa-cube preview-empty-icon"></i>
+                        <p>La vista previa del modelo aparecerá aquí</p>
+                    </div>
+                </div>
+                <div id="preview-overlay" class="hidden">
+                    <div class="preview-info">
+                        <span id="preview-model-name">—</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast" class="toast-hidden">
+        <i class="fas fa-check-circle toast-icon"></i>
+        <span id="toast-message">Notificación</span>
+    </div>
+
+</body>
+
+</html>
