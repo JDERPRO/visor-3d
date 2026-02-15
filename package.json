@@ -1,0 +1,22 @@
+{
+  "name": "bitform-visor-3d",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Visor BIM 3D independiente con @thatopen/components. Para embeber via iframe en tu web de Google Apps Script.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy:gh": "vite build --base=/visor-3d/ && npx -y gh-pages -d dist"
+  },
+  "dependencies": {
+    "@thatopen/components": "2.1.0",
+    "@thatopen/fragments": "2.1.0",
+    "three": "0.160.0",
+    "web-ifc": "^0.0.55"
+  },
+  "devDependencies": {
+    "vite": "^7.3.1"
+  }
+}

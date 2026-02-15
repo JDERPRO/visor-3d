@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitform | Visor BIM 3D</title>
+  <meta name="description"
+    content="Visor BIM 3D interactivo con tecnología That Open Company. Explora modelos IFC y FRAG en tu navegador.">
+
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+</head>
+
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loader-content">
+      <div class="loader-logo">
+        <div class="logo-cube">
+          <div class="cube-face front"></div>
+          <div class="cube-face back"></div>
+          <div class="cube-face left"></div>
+          <div class="cube-face right"></div>
+          <div class="cube-face top"></div>
+          <div class="cube-face bottom"></div>
+        </div>
+      </div>
+      <h2 class="loader-title">BITFORM VIEWER</h2>
+      <p class="loader-subtitle" id="loading-status">Inicializando motor 3D...</p>
+      <div class="loader-progress">
+        <div class="loader-progress-bar" id="loading-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Viewer Container -->
+  <div id="app">
+    <!-- Top Toolbar -->
+    <header id="toolbar">
+      <div class="toolbar-left">
+        <div class="toolbar-brand">
+          <div class="brand-icon">B</div>
+          <span class="brand-text">BITFORM <span class="brand-accent">VIEWER</span></span>
+        </div>
+        <div class="toolbar-divider"></div>
+        <span class="model-name" id="model-name">Sin modelo cargado</span>
+      </div>
+
+      <div class="toolbar-center">
+        <div class="toolbar-group">
+          <button class="tool-btn" id="btn-fit" title="Encuadrar modelo">
+            <i class="fas fa-expand"></i>
+          </button>
+          <button class="tool-btn" id="btn-ortho" title="Vista Ortográfica/Perspectiva">
+            <i class="fas fa-cube"></i>
+          </button>
+          <button class="tool-btn" id="btn-grid" title="Mostrar/Ocultar Grid">
+            <i class="fas fa-border-all"></i>
+          </button>
+          <button class="tool-btn" id="btn-clip" title="Planos de Corte">
+            <i class="fas fa-cut"></i>
+          </button>
+        </div>
+        <div class="toolbar-group">
+          <button class="tool-btn" id="btn-front" title="Vista Frontal">F</button>
+          <button class="tool-btn" id="btn-top" title="Vista Superior">T</button>
+          <button class="tool-btn" id="btn-right" title="Vista Derecha">R</button>
+          <button class="tool-btn" id="btn-iso" title="Vista Isométrica">
+            <i class="fas fa-vector-square"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="toolbar-right">
+        <a class="tool-btn" href="/converter.html" title="Conversor IFC → FRAG">
+          <i class="fas fa-exchange-alt"></i>
+        </a>
+        <button class="tool-btn" id="btn-properties" title="Panel de propiedades">
+          <i class="fas fa-info-circle"></i>
+        </button>
+        <button class="tool-btn" id="btn-fullscreen" title="Pantalla completa">
+          <i class="fas fa-expand-arrows-alt"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Viewer -->
+    <div id="viewer-wrapper">
+      <div id="viewer-container"></div>
+
+      <!-- Clipping Panel -->
+      <div id="clip-panel" class="clip-panel"></div>
+
+      <!-- Navigation Cube Placeholder -->
+      <div id="nav-hint">
+        <i class="fas fa-mouse"></i>
+        <span>Click + Arrastrar para Rotar • Click Derecho para Pan • Scroll para Zoom</span>
+      </div>
+
+      <!-- Model Info Overlay -->
+      <div id="model-info" class="hidden">
+        <div class="info-row">
+          <span class="info-label">Elementos</span>
+          <span class="info-value" id="info-elements">0</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Fragmentos</span>
+          <span class="info-value" id="info-fragments">0</span>
+        </div>
+      </div>
+
+      <!-- Drop Zone Overlay -->
+      <div id="drop-zone" class="hidden">
+        <div class="drop-zone-content">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Suelta tu archivo <strong>.frag</strong> o <strong>.ifc</strong> aquí</p>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state">
+        <div class="empty-content">
+          <div class="empty-icon">
+            <i class="fas fa-cubes"></i>
+          </div>
+          <h3>Visor BIM 3D</h3>
+          <p>Arrastra y suelta un archivo <strong>.frag</strong> o carga un modelo desde URL</p>
+          <div class="empty-actions">
+            <label class="btn-primary" for="file-input">
+              <i class="fas fa-folder-open"></i> Abrir Archivo
+            </label>
+            <input type="file" id="file-input" accept=".frag,.ifc" class="hidden">
+            <button class="btn-secondary" id="btn-demo-model">
+              <i class="fas fa-play-circle"></i> Cargar Demo
+            </button>
+            <a class="btn-secondary" href="/converter.html">
+              <i class="fas fa-exchange-alt"></i> IFC → FRAG
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Properties Panel — Slide-in Side Panel -->
+      <aside id="properties-panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-info-circle"></i> Propiedades</h3>
+          <button class="panel-close" id="btn-close-properties">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="panel-body" id="properties-content">
+          <div class="empty-panel">
+            <i class="fas fa-mouse-pointer"></i>
+            <p>Selecciona un elemento del modelo para ver sus propiedades</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+
+  </div>
+
+  <!-- Toast Notifications -->
+  <div id="toast" class="toast-hidden">
+    <i class="fas fa-check-circle toast-icon"></i>
+    <span id="toast-message">Notificación</span>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
